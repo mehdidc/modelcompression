@@ -1,6 +1,7 @@
 from utils import iterate_minibatches
 from utils import provider_from_module
 
+
 class Generator(object):
 
     def generate(self):
@@ -37,4 +38,5 @@ def load_from_provider_and_teacher(provider, teacher):
         return MiniBatchGenerator(X, teacher,
                                   batch_size=100, random_state=1234)
     else:
-        return provider_from_module(provider).provide()
+        print(teacher)
+        return provider_from_module(provider).provide(teacher)

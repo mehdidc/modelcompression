@@ -24,7 +24,13 @@ def compress(model_provider,
     logger.info("Building student model")
     student = model_funcs.builder(student_builder)
     logger.info("Start compression...")
-    scheme.standard(model, data, student, max_epochs=max_epochs)
+    try:
+        scheme.standard(model, data, student, max_epochs=max_epochs)
+    except KeyboardInterrupt:
+        logging.info("Keyboard interruption, saving the model")
+    except Exception as e:
+        logging.error(repr(e), exc_info=True)
+        return
     logger.info("Saving the compressed model")
 
     student.meta = dict(
@@ -42,9 +48,18 @@ def test():
     data = load_digits()
     X = data["data"]
     y = data["target"]
-    model = MLPClassifier(verbose=1)
+    model = MLPClassifier(verbose=1, hidden_layer_sizes=[100])
     model.fit(X, y)
 
     compress(model_provider=model,
              data_provider=X,
              student_builder=MLPRegressor())
+
+
+@task
+def googlenet():
+    from sklearn.neural_network import MLPRegressor
+    compress(model_provider="modelcompression.providers.specific.googlenet",
+             data_provider="modelcompression.providers.specific.image",
+             student_builder=MLPRegressor(),
+             max_epochs=5000)
