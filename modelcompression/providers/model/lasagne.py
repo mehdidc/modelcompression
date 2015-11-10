@@ -1,7 +1,6 @@
 import theano
+from lasagne import layers
 
-class Dummy(object):
-    pass
 
 def provide_from_layers(layers_dict):
     assert "input" in layers_dict
@@ -13,9 +12,12 @@ def provide_from_layers(layers_dict):
     else:
         output_layer = layers_dict["output"]
     predict_proba = theano.function(
-        [X_tensor],
-        layers.get_output(output_layer)
+        [input_layer.input_Var],
+        layers.get_output(output_layer, input_layer.input_var)
     )
+
+    class Dummy(object):
+        pass
     clf = Dummy()
     clf.predict_proba = predict_proba
     return clf

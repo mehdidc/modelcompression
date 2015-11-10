@@ -12,19 +12,31 @@ def builder(provider):
 
 
 def load_from_provider(provider):
+    logging.info("Start Loading model from provider")
 
     try:
+        logging.info("Loading model from a module")
         provider = provider_from_module(provider).provide()
-        return provider
     except Exception as e:
-        logging.info(repr(e), exc_info=True)
-        try:
-            with open(provider, "rb") as fd:
-                model = pickle.load(fd)
-            return model
-        except Exception as e:
-            logging.error(repr(e), exc_info=True)
-            return provider
+        logging.warning("It is not a module, got an exception : (}".format(repr(e)))
+    else:
+        return provider
+
+    logging.info("Checking if the provider has partial_fit")
+    if hasattr(provider, "partial_fit"):
+        logging.info("Found partial_fit in the provider, use it")
+        return provider
+
+    logging.info("Try to open it see if it can be pickled")
+    try:
+        with open(provider, "rb") as fd:
+            model = pickle.load(fd)
+    except Exception as e:
+        logging.error("Could not open it : {}".format(repr(e)), exc_info=True)
+    else:
+        return model
+
+    raise Exception("Could not load the model from provider, all attemps failed")
 
 
 def save(model, filename):

@@ -59,7 +59,16 @@ def test():
 @task
 def googlenet():
     from sklearn.neural_network import MLPRegressor
-    compress(model_provider="modelcompression.providers.specific.googlenet",
-             data_provider="modelcompression.providers.specific.image",
+    compress(model_provider="modelcompression.providers.model.googlenet",
+             data_provider="modelcompression.providers.data.image",
+             student_builder=MLPRegressor(),
+             max_epochs=5000)
+
+
+@task
+def vgg():
+    from sklearn.neural_network import MLPRegressor
+    compress(model_provider="modelcompression.providers.model.vgg",
+             data_provider="modelcompression.providers.data.image",
              student_builder=MLPRegressor(),
              max_epochs=5000)

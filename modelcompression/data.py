@@ -1,42 +1,30 @@
-from utils import iterate_minibatches
 from utils import provider_from_module
+import numpy as np
 
+from providers.data.minibatch import MiniBatchGenerator
 
-class Generator(object):
-
-    def generate(self):
-        raise NotImplementedError
-
-
-class MiniBatchGenerator(object):
-
-    def __init__(self,
-                 X,
-                 teacher,
-                 batch_size=100,
-                 random_state=1234):
-        self.X = X
-        self.teacher = teacher
-        self.random_state = random_state
-        self.batch_size = batch_size
-        self.size = len(X)
-        self._cur_minibatch = 0
-
-    def generator(self):
-        while True:
-            for location in iterate_minibatches(self.size,
-                                                self.batch_size):
-                X_loc = self.X[location]
-                y_loc = self.teacher.predict_proba(X_loc)
-                yield X_loc, y_loc
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def load_from_provider_and_teacher(provider, teacher):
-    import numpy as np
+    logging.info("Start loading data from provider")
+
     if isinstance(provider, np.ndarray):
+        logging.info("It is an np.ndarray, use it")
         X = provider
         return MiniBatchGenerator(X, teacher,
                                   batch_size=100, random_state=1234)
+
+    logging.info("Start Loading provider from a module")
+
+    try:
+        provider = provider_from_module(provider)
+        data = provider.provide(teacher)
+    except Exception as e:
+        logging.error("Could not open it : {}".format(repr(e)), exc_info=True)
     else:
-        print(teacher)
-        return provider_from_module(provider).provide(teacher)
+        return data
+
+    raise Exception("Could not load the model from provider, all attemps failed")
