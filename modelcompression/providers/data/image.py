@@ -23,7 +23,7 @@ class Generator(object):
                            ": {}, skipping".format(repr(e)))
                     logging.warning(msg)
                     continue
-                if len(x.shape) != 3 and X.shape[2] != 3:
+                if len(x.shape) != 3 or (len(x.shape)==3 and x.shape[2] != 3):
                     logging.warning("Incompatible shape : {}, skipping".format(x.shape))
                     continue
                 logging.debug("shape : {}".format(x.shape))
@@ -61,4 +61,4 @@ def retrieve(generator, batch_size):
 
 def provide(teacher):
     return provide_images_from_folder(teacher,"/home/mcherti/work/data/imagenet/images/*.jpg",
-                                      batch_size=10)
+                                      batch_size=100)

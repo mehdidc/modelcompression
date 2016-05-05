@@ -68,7 +68,15 @@ def googlenet():
 @task
 def vgg():
     from sklearn.neural_network import MLPRegressor
+    from modelcompression.misc.fully import Regressor
+    from hp_toolkit.hp import instantiate_default_model, instantiate_random_model
+    student_builder = MLPRegressor(hidden_layer_sizes=[1000], learning_rate_init=0.0001)
+    #student_builder = instantiate_default_model(Regressor,
+    #                                            default_params=dict(max_epochs=1,
+    ##                                                                nb_units=500,
+    #                                                                nb_layers=1,
+    #                                                                learning_rate=0.01))
     compress(model_provider="modelcompression.providers.model.vgg",
              data_provider="modelcompression.providers.data.image",
-             student_builder=MLPRegressor(),
+             student_builder=student_builder,
              max_epochs=5000)

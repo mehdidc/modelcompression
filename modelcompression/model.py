@@ -41,4 +41,4 @@ def load_from_provider(provider):
 
 def save(model, filename):
     with open(filename, "wb") as fd:
-        pickle.dump(model, fd)
+        pickle.dump(model, fd, protocol=pickle.HIGHEST_PROTOCOL)

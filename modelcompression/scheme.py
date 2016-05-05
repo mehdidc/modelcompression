@@ -1,4 +1,4 @@
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, accuracy_score
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -16,10 +16,16 @@ def standard(model, data, student,
             if len(X.shape) > 2:
                 X = X.reshape((X.shape[0], -1))
             student.partial_fit(X, y)
-            score = evaluator(y, student.predict(X))
+            pred = student.predict(X)
+            score = evaluator(y, pred)
 
             message = ("{} at iteration {}: {}".format(
                 evaluator.__name__,
                 i,
                 score))
+            logging.info(message)
+
+            accuracy = accuracy_score(y.argmax(axis=1),
+                                      pred.argmax(axis=1))
+            message = "accuracy : {}".format(accuracy)
             logging.info(message)
